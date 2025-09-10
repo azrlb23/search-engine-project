@@ -13,12 +13,12 @@ class Node {
     }
 }
 
-class manualQueue {
+public class Queue {
     Node front;
     Node rear;
     private int size;
 
-    public manualQueue() {
+    public Queue() {
         this.front = null;
         this.rear = null;
         this.size = 0;
@@ -32,26 +32,26 @@ class manualQueue {
         return this.size;
     }
 
-    public void tambah(char data) {
-        Node nodeBaru = new Node(data);
+    public void enqueue(char data) {
+        Node newNode = new Node(data);
         if (isEmpty()) {
-            front = nodeBaru;
-            rear = nodeBaru;
+            front = newNode;
+            rear = newNode;
         } else {
-            rear.next = nodeBaru;
-            nodeBaru.prev = rear;
-            rear = nodeBaru;
+            rear.next = newNode;
+            newNode.prev = rear;
+            rear = newNode;
         }
         size++;
         System.out.println("'" + data + "' berhasil masuk ke Queue.");
     }
 
-    public char keluar() {
+    public char dequeue() {
         if (isEmpty()) {
             System.out.println("Queue kosong, tidak ada yang bisa keluar.");
             return '\0';
         }
-        char dataYangKeluar = front.data;
+        char outChar = front.data;
         front = front.next;
         size--;
         if (front == null) {
@@ -59,11 +59,11 @@ class manualQueue {
         } else {
             front.prev = null;
         }
-        System.out.println("'" + dataYangKeluar + "' telah keluar dari queue.");
-        return dataYangKeluar;
+        System.out.println("'" + outChar + "' telah keluar dari queue.");
+        return outChar;
     }
 
-    public void lihat() {
+    public void peek() {
         if (isEmpty()) {
             System.out.println("Queue kosong, tidak ada yang bisa dilihat.");
         } else {
@@ -126,7 +126,7 @@ class manualQueue {
         System.out.println("Node di indeks " + index1 + " dan " + index2 + " berhasil ditukar.");
     }
 
-    public void cetakqueue() {
+    public void printqueue() {
         if (isEmpty()) {
             System.out.println("-> Queue saat ini: Kosong");
             return;
@@ -144,7 +144,7 @@ class manualQueue {
     
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
-        manualQueue queue = new manualQueue();
+        Queue queue = new Queue();
         int pilihan = 0;
 
         while (pilihan != 6) {
@@ -164,13 +164,13 @@ class manualQueue {
                     case 1:
                         System.out.print("Masukkan satu karakter untuk ditambahkan: ");
                         char dataMasuk = input.next().charAt(0);
-                        queue.tambah(dataMasuk);
+                        queue.enqueue(dataMasuk);
                         break;
                     case 2:
-                        queue.keluar();
+                        queue.dequeue();
                         break;
                     case 3:
-                        queue.lihat();
+                        queue.peek();
                         break;
                     case 4:
                         System.out.print("Masukkan indeks pertama: ");
@@ -189,7 +189,7 @@ class manualQueue {
                 }
                 
                 if (pilihan != 6) {
-                    queue.cetakqueue();
+                    queue.printqueue();
                 }
 
             } catch (Exception e) {
