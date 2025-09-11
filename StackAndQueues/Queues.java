@@ -14,6 +14,8 @@ public class Queues {
 
         Node(char c){
             this.value = c;
+            this.next = null;
+            this.prev = null;
         }
     }
 
@@ -35,7 +37,6 @@ public class Queues {
     //remove element from the front
     public char dequeue(){
         if (head == null){
-            System.out.println("Queue masih kosong.");
             return '\0';
         }
         char value = head.value;
@@ -160,19 +161,24 @@ public class Queues {
         }
         System.out.println();
     }
+
+    public void addAuto(int value){
+
+    }
     public static void main(String[] args) {
+
         int option = 0;
         Queues queue = new Queues();
-        while (option != 5) {
-            System.out.print("QUEUE MENUS: \n1.Enqueu\n2.Dequeu\n3.Swap\n4.Print\n5.Exit\n: ");
-            Scanner sc = new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
+        while (option != 6) {
+            System.out.print("QUEUE MENUS: \n1.Enqueu\n2.Dequeu\n3.Swap\n4.Print\n5.Auto add (a -> z)\n6. Exit\n: ");
             option = sc.nextInt();
 
             switch(option){
                 case 1:
-                    Scanner sc2 = new Scanner(System.in);
+                    sc = new Scanner(System.in);
                     System.out.print("Masukkan 1 karakter: ");
-                    char charInput = sc2.next().charAt(0);
+                    char charInput = sc.next().charAt(0);
                     queue.enqueu(charInput);
                     queue.printQueue();
 
@@ -184,7 +190,6 @@ public class Queues {
                     Interrupt.pressEnter();
                     break;
                 case 3:
-                    Scanner scan = new Scanner(System.in);
                     System.out.print("Masukkan Index pertama: ");
                     int index1 = sc.nextInt();
                     System.out.print("Masukkan Index kedua: ");
@@ -200,6 +205,13 @@ public class Queues {
                     Interrupt.pressEnter();
                     break;
                 case 5:
+                    for (char i = 'a'; i <= 'z'; i++){
+                        queue.enqueu(i);
+                    }
+                    queue.printQueue();
+                    Interrupt.pressEnter();
+                    break;
+                case 6:
                     break;
             }
         }

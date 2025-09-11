@@ -32,7 +32,6 @@ public class Stack {
 
     public char pop(){
         if (isEmpty()){
-            System.out.println("Stack kosong !!!");
             return '\0';
         }
         char value = head.value;
@@ -112,16 +111,15 @@ public class Stack {
     public static void main(String[] args) {
         int option = 0;
         Stack stack = new Stack();
-        while (option != 6) {
-            System.out.print("STACK MENUS: \n1.Push\n2.Pop\n3.Swap\n4.Print\n5.Peek\n6.Exit\n: ");
-            Scanner sc = new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
+        while (option != 7) {
+            System.out.print("STACK MENUS: \n1.Push\n2.Pop\n3.Swap\n4.Print\n5.Peek\n6.Auto Add (a -> z)\n7.Exit\n: ");
             option = sc.nextInt();
 
             switch(option){
                 case 1:
-                    Scanner sc2 = new Scanner(System.in);
                     System.out.print("Masukkan 1 karakter: ");
-                    char charInput = sc2.next().charAt(0);
+                    char charInput = sc.next().charAt(0);
                     stack.push(charInput);
                     stack.printStack();
 
@@ -133,7 +131,6 @@ public class Stack {
                     Interruptor.pressEnter();
                     break;
                 case 3:
-                    Scanner scan = new Scanner(System.in);
                     System.out.print("Masukkan Index pertama: ");
                     int index1 = sc.nextInt();
                     System.out.print("Masukkan Index kedua: ");
@@ -153,6 +150,13 @@ public class Stack {
                     Interruptor.pressEnter();
                     break;
                 case 6:
+                    for (char i = 'a'; i <= 'z'; i++){
+                        stack.push(i);
+                    }
+                    stack.printStack();
+                    Interrupt.pressEnter();
+                    break;
+                case 7:
                     break;
             }
         }
