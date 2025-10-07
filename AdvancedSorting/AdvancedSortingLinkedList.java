@@ -10,97 +10,95 @@ public class AdvancedSortingLinkedList extends DoubleLinkedList{
 
         Random random = new Random();
         for(int i = 0; i < length; i++){
-            insertAtEnd(random.nextInt(bound));
+            insertAtEnd(random.nextInt(bound), i);
         }
+    }
+
+    AdvancedSortingLinkedList cloner(){
+        AdvancedSortingLinkedList list2 = new AdvancedSortingLinkedList();
+
+        Node walker = head;
+        int indexValue = head.indexAt;
+        while(walker != null){
+            list2.insertAtEnd(walker.value, indexValue);
+            walker = walker.next;
+            if(walker != null){
+                indexValue = walker.indexAt;
+            }
+        }
+
+        return list2;
     }
 
 
     //MERGE SORT STARTS HERE
-    public void mergeSort() {
-        // Panggil helper rekursif pada seluruh list
-        this.head = mergeSortRecursive(this.head);
-
-        // PENTING: Setelah sorting, referensi 'tail' yang lama mungkin tidak valid.
-        // Kita harus menemukan dan memperbarui 'tail' yang baru.
-        if (this.head == null) {
-            this.tail = null;
-        } else {
-            Node current = this.head;
-            while (current.next != null) {
-                current = current.next;
-            }
-            this.tail = current;
-        }
-    }
-
-    // --- PRIVATE IMPLEMENTATION HELPERS ---
-
-    /**
-     * Fungsi rekursif inti untuk Merge Sort.
-     * Mengurutkan list yang dimulai dari 'head' dan mengembalikan head baru dari list terurut.
-     */
-    private Node mergeSortRecursive(Node head) {
-        // Base case: jika list kosong atau hanya punya 1 elemen, ia sudah terurut
-        if (head == null || head.next == null) {
-            return head;
-        }
-
-        // Bagi list menjadi dua bagian
-        Node secondHalf = split(head);
-
-        // Urutkan kedua bagian secara rekursif
-        head = mergeSortRecursive(head);
-        secondHalf = mergeSortRecursive(secondHalf);
-
-        // Gabungkan kedua bagian yang sudah terurut
-        return merge(head, secondHalf);
-    }
-
-    /**
-     * Membagi list menjadi dua bagian dari 'head' dan mengembalikan head dari bagian kedua.
-     * Menggunakan metode pointer cepat & lambat.
-     */
-    private Node split(Node head) {
+    public Node split(Node head) {
         Node fast = head;
         Node slow = head;
 
-        // Gerakkan fast 2x lebih cepat dari slow
-        // Ini akan menempatkan slow di tengah list
-        while (fast.next != null && fast.next.next != null) {
+        while (fast != null && fast.next != null && fast.next.next != null) {
             fast = fast.next.next;
             slow = slow.next;
         }
 
-        // Pisahkan list
-        Node secondHalf = slow.next;
+        Node temp = slow.next;
         slow.next = null;
-        if (secondHalf != null) {
-            secondHalf.prev = null;
+        if (temp != null) {
+            temp.prev = null;
         }
-        return secondHalf;
+        return temp;
     }
 
-    /**
-     * Menggabungkan dua list yang sudah terurut (first dan second).
-     * Mengembalikan head dari list yang sudah digabung.
-     */
-    private Node merge(Node first, Node second) {
-        // Base cases
-        if (first == null) return second;
-        if (second == null) return first;
+    public Node merge(Node first, Node second) {
+        if (first == null)
+            return second;
+        if (second == null)
+            return first;
 
-        // Pilih yang lebih kecil, lalu panggil rekursif untuk sisanya
         if (first.value < second.value) {
             first.next = merge(first.next, second);
-            first.next.prev = first; // Set pointer prev
-            first.prev = null;      // Head baru tidak punya prev
+            if (first.next != null) {
+                first.next.prev = first;
+            }
+            first.prev = null;
             return first;
         } else {
             second.next = merge(first, second.next);
-            second.next.prev = second; // Set pointer prev
-            second.prev = null;       // Head baru tidak punya prev
+            if (second.next != null) {
+                second.next.prev = second;
+            }
+            second.prev = null;
             return second;
         }
+    }
+
+    public Node mergeSortRecursive(Node head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+
+        Node second = split(head);
+        head = mergeSortRecursive(head);
+        second = mergeSortRecursive(second);
+        return merge(head, second);
+    }
+
+    public void mergeSort() {
+        this.head = mergeSortRecursive(this.head);
+        updateTail();
+    }
+
+    private void updateTail() {
+        if (head == null) {
+            tail = null;
+            return;
+        }
+        Node current = head;
+        while (current.next != null) {
+            current = current.next;
+        }
+        tail = current;
+
     }
     //MERGE SORT ENDS HERE
 
@@ -122,27 +120,27 @@ public class AdvancedSortingLinkedList extends DoubleLinkedList{
 
         PartitionResult sortedResult = quickSortRecursive(this.head, this.tail);
 
-        // Perbarui head dan tail utama dari list
         this.head = sortedResult.head;
         this.tail = sortedResult.tail;
+
     }
+
 
     private PartitionResult quickSortRecursive(Node low, Node high) {
         if (low == null || high == null || low == high) {
             return new PartitionResult(low, high);
         }
 
-        // 1. PARTISI LIST
-        // Pisahkan menjadi 3 bagian: lesser, equal, greater
+
         Node lesserHead = null, lesserTail = null;
         Node equalHead = null, equalTail = null;
         Node greaterHead = null, greaterTail = null;
 
-        int pivotValue = high.value; // Pivot diambil dari node terakhir
+        int pivotValue = high.value;
         Node current = low;
         while (current != null) {
             Node next = current.next;
-            current.next = null; // Putuskan hubungan node untuk dipindahkan
+            current.next = null;
             current.prev = null;
 
             if (current.value < pivotValue) {
@@ -165,21 +163,16 @@ public class AdvancedSortingLinkedList extends DoubleLinkedList{
                 }
             }
 
-            // Berhenti jika sudah memproses node 'high'
             if (current == high) break;
             current = next;
         }
 
-        // 2. URUTKAN BAGIAN REKURSIF
         PartitionResult sortedLesser = quickSortRecursive(lesserHead, lesserTail);
         PartitionResult sortedGreater = quickSortRecursive(greaterHead, greaterTail);
 
-        // 3. GABUNGKAN HASIL
-        // Gabungkan lesser yang terurut dengan bagian equal
         if (sortedLesser.head != null) {
             sortedLesser.tail.next = equalHead;
             equalHead.prev = sortedLesser.tail;
-            // Gabungkan bagian equal dengan greater yang terurut
             equalTail.next = sortedGreater.head;
             if(sortedGreater.head != null) sortedGreater.head.prev = equalTail;
 
@@ -187,7 +180,6 @@ public class AdvancedSortingLinkedList extends DoubleLinkedList{
             Node newTail = sortedGreater.tail != null ? sortedGreater.tail : equalTail;
             return new PartitionResult(newHead, newTail);
         } else {
-            // Jika tidak ada bagian lesser, gabungkan equal dengan greater
             equalTail.next = sortedGreater.head;
             if(sortedGreater.head != null) sortedGreater.head.prev = equalTail;
 
@@ -201,10 +193,9 @@ public class AdvancedSortingLinkedList extends DoubleLinkedList{
     //SHELL SORT STARTS HERE
     public void shellSort() {
         if (head == null || head.next == null) {
-            return; // Tidak ada yang perlu diurutkan
+            return;
         }
 
-        // 1. Hitung jumlah node (n)
         int n = 0;
         Node current = head;
         while (current != null) {
@@ -212,79 +203,104 @@ public class AdvancedSortingLinkedList extends DoubleLinkedList{
             current = current.next;
         }
 
-        // 2. Lakukan iterasi dengan gap sequence (n/2, n/4, n/8, ..., 1)
         for (int gap = n / 2; gap > 0; gap /= 2) {
-            // Panggil gapped insertion sort untuk setiap gap
             insertionSortWithGap(gap);
         }
+        updateIndices();
     }
 
     private void insertionSortWithGap(int gap) {
-        // Mulai dari elemen ke-'gap'
-        Node startNode = head;
-        for (int i = 0; i < gap; i++) {
-            if (startNode != null) {
-                startNode = startNode.next;
-            }
-        }
+        for (int startIndex = 0; startIndex < gap; startIndex++) {
+            Node startNode = getNodeAtIndex(startIndex + gap);
 
-        // Iterasi dari node awal (elemen ke-'gap') hingga akhir list
-        Node current = startNode;
-        while (current != null) {
-            int tempValue = current.value;
-            Node insertionPoint = current;
+            Node current = startNode;
+            while (current != null) {
+                int tempValue = current.value;
+                Node insertionPoint = current;
 
-            // Cari posisi penyisipan yang benar dengan mundur sejauh 'gap'
-            while (true) {
-                // Temukan node 'gap' langkah di belakang insertionPoint
-                Node prevNode = insertionPoint;
-                for (int i = 0; i < gap; i++) {
-                    if (prevNode != null) {
+                while (true) {
+                    Node prevNode = insertionPoint;
+                    for (int i = 0; i < gap && prevNode != null; i++) {
                         prevNode = prevNode.prev;
-                    } else {
+                    }
+
+                    if (prevNode == null || prevNode.value <= tempValue) {
                         break;
                     }
+
+                    insertionPoint.value = prevNode.value;
+                    insertionPoint = prevNode;
                 }
 
-                // Jika sudah sampai di awal sublist atau menemukan posisi yang tepat
-                if (prevNode == null || prevNode.value <= tempValue) {
-                    break;
+                insertionPoint.value = tempValue;
+
+                Node next = current;
+                for (int i = 0; i < gap && next != null; i++) {
+                    next = next.next;
                 }
-
-                // Geser nilai dari prevNode ke posisi insertionPoint saat ini
-                insertionPoint.value = prevNode.value;
-
-                // Mundur ke posisi prevNode untuk iterasi berikutnya
-                insertionPoint = prevNode;
+                current = next;
             }
-
-            // Tempatkan nilai sementara ke posisi penyisipan yang benar
-            insertionPoint.value = tempValue;
-
-            current = current.next;
         }
     }
 
+    public Node getNodeAtIndex(int index) {
+        Node current = head;
+        for (int i = 0; i < index && current != null; i++) {
+            current = current.next;
+        }
+        return current;
+    }
+
+    private void updateIndices() {
+        Node current = head;
+        int index = 0;
+        while (current != null) {
+            current.indexAt = index++;
+            current = current.next;
+        }
+    }
     //SHELL SORT ENDS HERE
-
-    //DEBUGS
-
-    //DEBUGS ENDS HERE
 
     public static void main(String[] args) {
         AdvancedSortingLinkedList list = new AdvancedSortingLinkedList();
 
-        list.randomizer(100, 1000);
+        list.randomizer(10, 1000);
         System.out.println("Initial List");
         list.traverseForward();
         System.out.println();
 
-        list.mergeSort();
-//        list.quickSort();
-//        list.shellSort();
-        System.out.println();
-        System.out.println("Done Sorting");
-        list.traverseForward();
+        AdvancedSortingLinkedList list2;
+        list2 = list.cloner();
+        System.out.println("\u001B[32mMERGE SORT\u001B[0m");
+        long startime1 = System.nanoTime();
+        list2.mergeSort();
+        long endtime1 = System.nanoTime();
+        System.out.println("RESULT");
+        list2.traverseForward();
+        double durationTime3 = (endtime1 - startime1) / 1_000_000.0;
+        System.out.print("\u001B[32m TIME ELAPSED:\u001B[0m ");
+        System.out.println("\u001B[31m" + durationTime3 + "\u001B[0m ms\n");
 
+        AdvancedSortingLinkedList list3 = list.cloner();
+        System.out.println("\u001B[32mQUICK SORT\u001B[0m");
+        startime1 = System.nanoTime();
+        list3.quickSort();
+        endtime1 = System.nanoTime();
+        System.out.println("RESULT");
+        list3.traverseForward();
+        durationTime3 = (endtime1 - startime1) / 1_000_000.0;
+        System.out.print("\u001B[32m TIME ELAPSED:\u001B[0m ");
+        System.out.println("\u001B[31m" + durationTime3 + "\u001B[0m ms\n");
+
+        AdvancedSortingLinkedList list4 = list.cloner();
+        System.out.println("\u001B[32mSHELL SORT\u001B[0m");
+        startime1 = System.nanoTime();
+        list4.shellSort();
+        endtime1 = System.nanoTime();
+        System.out.println("RESULT");
+        list4.traverseForward();
+        durationTime3 = (endtime1 - startime1) / 1_000_000.0;
+        System.out.print("\u001B[32m TIME ELAPSED:\u001B[0m ");
+        System.out.println("\u001B[31m" + durationTime3 + "\u001B[0m ms");
     }
 }
