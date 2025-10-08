@@ -195,73 +195,79 @@ public class AdvancedSortingLinkedList extends DoubleLinkedList{
         if (head == null || head.next == null) {
             return;
         }
-
-        int n = 0;
-        Node current = head;
-        while (current != null) {
-            n++;
-            current = current.next;
-        }
-
+        int n = getListSize();
         for (int gap = n / 2; gap > 0; gap /= 2) {
-            insertionSortWithGap(gap);
-        }
-        updateIndices();
-    }
-
-    private void insertionSortWithGap(int gap) {
-        for (int startIndex = 0; startIndex < gap; startIndex++) {
-            Node startNode = getNodeAtIndex(startIndex + gap);
-
-            Node current = startNode;
+            Node current = head;
+            for (int i = 0; i < gap; i++) {
+                if(current != null) current = current.next;
+            }
             while (current != null) {
-                int tempValue = current.value;
-                Node insertionPoint = current;
-
+                Node nodeToInsert = current;
+                Node nextNodeForLoop = current.next;
+                Node insertionPoint = nodeToInsert;
                 while (true) {
-                    Node prevNode = insertionPoint;
-                    for (int i = 0; i < gap && prevNode != null; i++) {
-                        prevNode = prevNode.prev;
+                    Node prevInSublist = insertionPoint;
+                    for (int i = 0; i < gap && prevInSublist != null; i++) {
+                        prevInSublist = prevInSublist.prev;
                     }
-
-                    if (prevNode == null || prevNode.value <= tempValue) {
-                        break;
+                    if (prevInSublist == null || prevInSublist.value <= nodeToInsert.value) {
+                        break; 
                     }
-
-                    insertionPoint.value = prevNode.value;
-                    insertionPoint = prevNode;
+                    insertionPoint = prevInSublist;
                 }
-
-                insertionPoint.value = tempValue;
-
-                Node next = current;
-                for (int i = 0; i < gap && next != null; i++) {
-                    next = next.next;
+                if (insertionPoint != nodeToInsert) {
+                    detachNode(nodeToInsert);
+                    insertNodeBefore(nodeToInsert, insertionPoint);
                 }
-                current = next;
+                current = nextNodeForLoop;
             }
         }
     }
 
-    public Node getNodeAtIndex(int index) {
-        Node current = head;
-        for (int i = 0; i < index && current != null; i++) {
-            current = current.next;
-        }
-        return current;
+    private int getListSize() {
+    int count = 0;
+    Node current = head;
+    while (current != null) {
+        count++;
+        current = current.next;
+    }
+    return count;
     }
 
-    private void updateIndices() {
-        Node current = head;
-        int index = 0;
-        while (current != null) {
-            current.indexAt = index++;
-            current = current.next;
+    private void detachNode(Node node) {
+        if (node == null) return;
+
+        if (node.prev != null) {
+            node.prev.next = node.next;
         }
+        if (node.next != null) {
+            node.next.prev = node.prev;
+        }
+        if (node == head) {
+            head = node.next;
+        }
+        if (node == tail) {
+            tail = node.prev;
+        }
+        node.next = null;
+        node.prev = null;
+    }
+
+    private void insertNodeBefore(Node nodeToInsert, Node insertionPoint) {
+        if (nodeToInsert == null || insertionPoint == null) return;
+
+        nodeToInsert.next = insertionPoint;
+        nodeToInsert.prev = insertionPoint.prev;
+        if (insertionPoint.prev != null) {
+            insertionPoint.prev.next = nodeToInsert;
+        } else {
+            head = nodeToInsert;
+        }
+        insertionPoint.prev = nodeToInsert;
     }
     //SHELL SORT ENDS HERE
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
         AdvancedSortingLinkedList list = new AdvancedSortingLinkedList();
 
         list.randomizer(10, 1000);
