@@ -1,6 +1,8 @@
 package AdvancedSorting;
 
+import java.io.IOException;
 import java.util.Random;
+import java.util.Scanner;
 
 public class AdvancedSortingLinkedList extends DoubleLinkedList{
     void randomizer(int length, int bound){
@@ -10,7 +12,7 @@ public class AdvancedSortingLinkedList extends DoubleLinkedList{
 
         Random random = new Random();
         for(int i = 0; i < length; i++){
-            insertAtEnd(random.nextInt(bound), i);
+            insertAtEnd(random.nextInt(bound));
         }
     }
 
@@ -18,13 +20,9 @@ public class AdvancedSortingLinkedList extends DoubleLinkedList{
         AdvancedSortingLinkedList list2 = new AdvancedSortingLinkedList();
 
         Node walker = head;
-        int indexValue = head.indexAt;
         while(walker != null){
-            list2.insertAtEnd(walker.value, indexValue);
+            list2.insertAtEnd(walker.value);
             walker = walker.next;
-            if(walker != null){
-                indexValue = walker.indexAt;
-            }
         }
 
         return list2;
@@ -267,46 +265,186 @@ public class AdvancedSortingLinkedList extends DoubleLinkedList{
     }
     //SHELL SORT ENDS HERE
 
-    public static void main(String[] args){
-        AdvancedSortingLinkedList list = new AdvancedSortingLinkedList();
+    //UTILITY METHODS STARTS HERE
+    public static void tester(AdvancedSortingLinkedList originalList, int algorithmOption){
 
-        list.randomizer(10, 1000);
-        System.out.println("Initial List");
-        list.traverseForward();
-        System.out.println();
+        AdvancedSortingLinkedList list2 = originalList.cloner();
+        long startime1 = 0, endtime1 = 0;
 
-        AdvancedSortingLinkedList list2;
-        list2 = list.cloner();
-        System.out.println("\u001B[32mMERGE SORT\u001B[0m");
-        long startime1 = System.nanoTime();
-        list2.mergeSort();
-        long endtime1 = System.nanoTime();
+        switch (algorithmOption){
+            case 1:
+                startime1 = System.nanoTime();
+                list2.mergeSort();
+                endtime1 = System.nanoTime();
+                break;
+            case 2:
+                startime1 = System.nanoTime();
+                list2.quickSort();
+                endtime1 = System.nanoTime();
+                break;
+            case 3:
+                startime1 = System.nanoTime();
+                list2.shellSort();
+                endtime1 = System.nanoTime();
+                break;
+        }
+
         System.out.println("RESULT");
         list2.traverseForward();
         double durationTime3 = (endtime1 - startime1) / 1_000_000.0;
         System.out.print("\u001B[32m TIME ELAPSED:\u001B[0m ");
         System.out.println("\u001B[31m" + durationTime3 + "\u001B[0m ms\n");
+        list2.emptyList();
+    }
 
-        AdvancedSortingLinkedList list3 = list.cloner();
-        System.out.println("\u001B[32mQUICK SORT\u001B[0m");
-        startime1 = System.nanoTime();
-        list3.quickSort();
-        endtime1 = System.nanoTime();
-        System.out.println("RESULT");
-        list3.traverseForward();
-        durationTime3 = (endtime1 - startime1) / 1_000_000.0;
-        System.out.print("\u001B[32m TIME ELAPSED:\u001B[0m ");
-        System.out.println("\u001B[31m" + durationTime3 + "\u001B[0m ms\n");
+    public static void compare(AdvancedSortingLinkedList originalList){
+        AdvancedSortingLinkedList mergeList = originalList.cloner(), quickList = originalList.cloner(), shellList = originalList.cloner();
+        long mergeStart, mergeEnd, quickStart, quickEnd, shellStart, shellEnd;
+        double mergeDuration, quickDuration, shellDuration;
 
-        AdvancedSortingLinkedList list4 = list.cloner();
-        System.out.println("\u001B[32mSHELL SORT\u001B[0m");
-        startime1 = System.nanoTime();
-        list4.shellSort();
-        endtime1 = System.nanoTime();
+        System.out.println("MERGE SORT");
+        mergeStart = System.nanoTime();
+        mergeList.mergeSort();
+        mergeEnd = System.nanoTime();
         System.out.println("RESULT");
-        list4.traverseForward();
-        durationTime3 = (endtime1 - startime1) / 1_000_000.0;
+        mergeList.traverseForward();
+        mergeDuration = (mergeEnd - mergeStart) / 1_000_000.0;
         System.out.print("\u001B[32m TIME ELAPSED:\u001B[0m ");
-        System.out.println("\u001B[31m" + durationTime3 + "\u001B[0m ms");
+        System.out.println("\u001B[31m" + mergeDuration + "\u001B[0m ms\n");
+
+        System.out.println("QUICK SORT");
+        quickStart = System.nanoTime();
+        quickList.quickSort();
+        quickEnd = System.nanoTime();
+        System.out.println("RESULT");
+        mergeList.traverseForward();
+        quickDuration = (quickEnd - quickStart) / 1_000_000.0;
+        System.out.print("\u001B[32m TIME ELAPSED:\u001B[0m ");
+        System.out.println("\u001B[31m" + quickDuration + "\u001B[0m ms\n");
+
+        System.out.println("SHELL SORT");
+        shellStart = System.nanoTime();
+        shellList.shellSort();
+        shellEnd = System.nanoTime();
+        System.out.println("RESULT");
+        shellList.traverseForward();
+        shellDuration = (shellEnd - shellStart) / 1_000_000.0;
+        System.out.print("\u001B[32m TIME ELAPSED:\u001B[0m ");
+        System.out.println("\u001B[31m" + shellDuration + "\u001B[0m ms\n");
+
+        double first = mergeDuration;
+        double second = quickDuration;
+        double third = shellDuration;
+        String firstString = "Merge Sort";
+        String secondString = "Quick Sort";
+        String thirdString = "Shell Sort";
+
+        if(first > third){
+            double temp = first;
+            String tempString = firstString;
+            first = third;
+            firstString = thirdString;
+            third = temp;
+            thirdString = tempString;
+        }
+        if(first > second){
+            double temp = first;
+            String tempString = firstString;
+            first = second;
+            firstString = secondString;
+            second = temp;
+            secondString = tempString;
+        }
+        if(second > third){
+            double temp = second;
+            String tempString = secondString;
+            second = third;
+            secondString = thirdString;
+            third = temp;
+            thirdString = tempString;
+        }
+
+
+        System.out.println("RANKING");
+        System.out.println("1. " + firstString + " : "+ first);
+        System.out.println("2. " + secondString + " : "+ second);
+        System.out.println("3. " + thirdString +  " : "+ third);
+    }
+
+    public void emptyList(){
+        head = null;
+        tail = null;
+    }
+    //UTILITY METHODS ENDS HERE
+
+    public static void main(String[] args){
+        //MAIN MENU
+        AdvancedSortingLinkedList list = new AdvancedSortingLinkedList();
+        int option = -1;
+        Scanner sc = new Scanner(System.in);
+        System.out.println("WELCOME TO ADVANCED SORTING TESTER");
+        while(option != 10){
+            System.out.println("CHOOSE YOUR OPTION:");
+            System.out.println("1. CREATE LIST (RANDOMIZED)");
+            System.out.println("2. MERGE SORT");
+            System.out.println("3. QUICK SORT");
+            System.out.println("4. SHELL SORT");
+            System.out.println("5. COMPARE (RUN ALL SORT)");
+            System.out.println("6. CLEAR LIST");
+            System.out.println("10. QUIT PROGRAM");
+            System.out.print(": ");
+            option = sc.nextInt();
+
+            switch (option){
+                case 1:
+                    System.out.print("LENGTH: ");
+                    int listLength = sc.nextInt();
+                    System.out.print("BOUND: ");
+                    int listBound = sc.nextInt();
+                    System.out.println();
+                    list.randomizer(listLength, listBound);
+                    list.traverseForward();
+                    pressEnter();
+                    break;
+                case 2:
+                    if(list.isEmpty()) {
+                        System.out.println("LIST IS EMPTY\nDoing Nothing...");
+                        break;
+                    }
+                    System.out.println("\nMERGE SORT");
+                    tester(list, 1);
+                    pressEnter();
+                    break;
+                case 3:
+                    if(list.isEmpty()) {
+                        System.out.println("LIST IS EMPTY\nDoing Nothing...");
+                        break;
+                    }
+                    System.out.println("\nQUICK SORT");
+                    tester(list, 2);
+                    pressEnter();
+                    break;
+                case 4:
+                    if(list.isEmpty()) {
+                        System.out.println("LIST IS EMPTY\nDoing Nothing...");
+                        break;
+                    }
+                    System.out.println("\nSHELL SORT");
+                    tester(list, 3);
+                    pressEnter();
+                    break;
+                case 5:
+                    compare(list);
+                    pressEnter();
+                    break;
+                case 6:
+                    list.emptyList();
+                    list.traverseForward();
+                    break;
+                case 10:
+                    break;
+            }
+
+        }
     }
 }
