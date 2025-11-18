@@ -1,7 +1,11 @@
 package RedBlackTree;
 
 import java.io.IOException;
+import java.util.LinkedList; // Diperlukan untuk Level-Order
+import java.util.Queue;       // Diperlukan untuk Level-Order
 import java.util.Scanner;
+
+import RedBlackTreeChar.MenuHelper;
 
 class MenuHelper {
     public static void pressEnter() {
@@ -46,6 +50,7 @@ public class RedBlackTree {
         root = TNULL;
     }
 
+    // --- ROTASI ---
     private void leftRotate(Node x) {
         Node y = x.right;       // 1. Tentukan y
         x.right = y.left;     // 2. Pindahkan subtree kiri y ke subtree kanan x
@@ -82,6 +87,7 @@ public class RedBlackTree {
         x.parent = y;
     }
 
+    // --- INSERTION ---
     public void insert(int key) {
         Node node = new Node(key);
         node.parent = null;
@@ -95,8 +101,12 @@ public class RedBlackTree {
             y = x;
             if (node.key < x.key) {
                 x = x.left;
-            } else {
+            } else if (node.key > x.key) {
                 x = x.right;
+            } else {
+                // Mencegah duplikat
+                System.out.println("Nilai " + key + " sudah ada. Duplikat tidak diizinkan.");
+                return;
             }
         }
 
@@ -166,6 +176,7 @@ public class RedBlackTree {
         root.color = BLACK; // Properti 2: Root selalu HITAM
     }
 
+    // --- DELETION ---
     private void rbTransplant(Node u, Node v) {
         if (u.parent == null) {
             root = v;
@@ -181,7 +192,6 @@ public class RedBlackTree {
         Node z = TNULL;
         Node x, y;
         
-        // 1. Cari node yang akan dihapus
         z = findNode(key);
         if (z == TNULL) {
             System.out.println("Nilai " + key + " tidak ditemukan.");
@@ -217,6 +227,7 @@ public class RedBlackTree {
         if (yOriginalColor == BLACK) {
             deleteFix(x);
         }
+        System.out.println("Berhasil delete " + key);
     }
 
     private void deleteFix(Node x) {
@@ -279,9 +290,19 @@ public class RedBlackTree {
         x.color = BLACK;
     }
 
+    // --- FUNGSI HELPER & PENCARIAN ---
+    
     private Node minimum(Node node) {
         while (node.left != TNULL) {
             node = node.left;
+        }
+        return node;
+    }
+
+    // ** BARU: Fungsi untuk mencari nilai Maksimum **
+    private Node maximum(Node node) {
+        while (node.right != TNULL) {
+            node = node.right;
         }
         return node;
     }
@@ -298,11 +319,80 @@ public class RedBlackTree {
                 node = node.right;
             }
         }
-        return TNULL;
+        return TNULL; // Mengembalikan TNULL jika tidak ditemukan
     }
 
+    // ** BARU: Fungsi Search untuk menu **
+    public void search(int key) {
+        Node node = findNode(key);
+        if (node != TNULL) {
+            System.out.println("Nilai " + key + " DITEMUKAN.");
+        } else {
+            System.out.println("Nilai " + key + " TIDAK DITEMUKAN.");
+        }
+    }
+
+    // ** BARU: Fungsi Get Node Color untuk menu **
+    public void printNodeColor(int key) {
+        Node node = findNode(key);
+        if (node != TNULL) {
+            String color = (node.color == RED) ? "MERAH" : "HITAM";
+            System.out.println("Node " + key + " berwarna: " + color);
+        } else {
+            System.out.println("Nilai " + key + " TIDAK DITEMUKAN.");
+        }
+    }
+
+    // ** BARU: Fungsi Get Tree Height untuk menu **
+    public int getHeight() {
+        return getHeightHelper(this.root);
+    }
+
+    private int getHeightHelper(Node node) {
+        if (node == TNULL) {
+            return -1; // Ketinggian pohon kosong adalah -1
+        }
+        return 1 + Math.max(getHeightHelper(node.left), getHeightHelper(node.right));
+    }
+
+    // ** BARU: Fungsi Get Black Height untuk menu **
+    public int getBlackHeight() {
+        // Cukup hitung node hitam di satu sisi (misal kiri)
+        // karena Properti 5 menjamin semuanya sama.
+        Node current = this.root;
+        int bh = 0;
+        while (current != TNULL) {
+            if (current.color == BLACK) {
+                bh++;
+            }
+            current = current.left;
+        }
+        return bh; // Tidak perlu +1 karena TNULL tidak dihitung di loop
+    }
+
+    // ** BARU: Fungsi Get Minimum untuk menu **
+    public void getMinimum() {
+        if (root == TNULL) {
+            System.out.println("Pohon kosong.");
+            return;
+        }
+        System.out.println("Nilai Minimum: " + minimum(this.root).key);
+    }
+
+    // ** BARU: Fungsi Get Maximum untuk menu **
+    public void getMaximum() {
+        if (root == TNULL) {
+            System.out.println("Pohon kosong.");
+            return;
+        }
+        System.out.println("Nilai Maksimum: " + maximum(this.root).key);
+    }
+
+
+    // --- FUNGSI TRAVERSAL & PRINTING ---
+
     public void inorder() {
-        System.out.print("Inorder (Terkecil ke Terbesar): ");
+        System.out.print("Inorder (Kiri, Root, Kanan): ");
         inorderHelper(this.root);
         System.out.println();
     }
@@ -313,6 +403,59 @@ public class RedBlackTree {
             System.out.print(node.key + " ");
             inorderHelper(node.right);
         }
+    }
+
+    // ** BARU: Fungsi Preorder Traversal **
+    public void preorder() {
+        System.out.print("Preorder (Root, Kiri, Kanan): ");
+        preorderHelper(this.root);
+        System.out.println();
+    }
+
+    private void preorderHelper(Node node) {
+        if (node != TNULL) {
+            System.out.print(node.key + " ");
+            preorderHelper(node.left);
+            preorderHelper(node.right);
+        }
+    }
+
+    // ** BARU: Fungsi Postorder Traversal **
+    public void postorder() {
+        System.out.print("Postorder (Kiri, Kanan, Root): ");
+        postorderHelper(this.root);
+        System.out.println();
+    }
+
+    private void postorderHelper(Node node) {
+        if (node != TNULL) {
+            postorderHelper(node.left);
+            postorderHelper(node.right);
+            System.out.print(node.key + " ");
+        }
+    }
+    
+    // ** BARU: Fungsi Level-Order Traversal **
+    public void levelOrder() {
+        if (root == TNULL) {
+            System.out.println("Pohon kosong.");
+            return;
+        }
+        System.out.print("Level-Order: ");
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            Node temp = queue.poll();
+            System.out.print(temp.key + " ");
+
+            if (temp.left != TNULL) {
+                queue.add(temp.left);
+            }
+            if (temp.right != TNULL) {
+                queue.add(temp.right);
+            }
+        }
+        System.out.println();
     }
     
     public void printTree() {
@@ -330,7 +473,7 @@ public class RedBlackTree {
                 System.out.print("L----");
                 indent += "|  ";
             }
-            String color = root.color == RED ? "RED" : "BLACK";
+            String color = root.color == RED ? "MERAH" : "HITAM";
             System.out.println(root.key + " (" + color + ")");
             
             printHelper(root.left, indent, false);
@@ -338,35 +481,51 @@ public class RedBlackTree {
         }
     }
 
+
+    // --- MAIN METHOD (DIPERBARUI) ---
     public static void main(String[] args) {
         RedBlackTree rbt = new RedBlackTree();
         Scanner sc = new Scanner(System.in);
         int option = -1;
 
         while (option != 0) {
-            System.out.println("\n--- RED BLACK TREE MENU ---");
-            System.out.println("1. Insert Value");
-            System.out.println("2. Delete Value");
-            System.out.println("3. Print Inorder (Sorted)");
-            System.out.println("4. Print Tree Structure");
-            System.out.println("0. Exit");
-            System.out.print(": ");
+            System.out.println("\n--- 🌳 RED BLACK TREE MENU ---");
+            System.out.println("--- Modifikasi ---");
+            System.out.println(" 1. Insert Value");
+            System.out.println(" 2. Delete Value");
+            System.out.println("--- Traversal & Print ---");
+            System.out.println(" 3. Print Inorder (Sorted)");
+            System.out.println(" 4. Print Preorder");
+            System.out.println(" 5. Print Postorder");
+            System.out.println(" 6. Print Level-Order");
+            System.out.println(" 7. Print Tree Structure (Visual)");
+            System.out.println("--- Informasi & Properti ---");
+            System.out.println(" 8. Search Value");
+            System.out.println(" 9. Get Node Color");
+            System.out.println("10. Get Tree Height");
+            System.out.println("11. Get Black Height");
+            System.out.println("12. Get Minimum Value");
+            System.out.println("13. Get Maximum Value");
+            System.out.println("--- Keluar ---");
+            System.out.println(" 0. Exit");
+            System.out.print("Pilihan Anda: ");
 
             try {
                 option = sc.nextInt();
             } catch (Exception e) {
                 System.out.println("Input tidak valid, masukkan angka.");
-                sc.next();
+                sc.next(); // Bersihkan buffer scanner
                 continue;
             }
 
+            int value; // Dipindahkan ke luar switch
+            
             switch (option) {
                 case 1:
                     System.out.print("Masukkan nilai untuk di-insert: ");
                     try {
-                        int valueToInsert = sc.nextInt();
-                        rbt.insert(valueToInsert);
-                        System.out.println("Berhasil insert " + valueToInsert);
+                        value = sc.nextInt();
+                        rbt.insert(value);
                         rbt.printTree();
                     } catch (Exception e) {
                         System.out.println("Input tidak valid.");
@@ -377,9 +536,8 @@ public class RedBlackTree {
                 case 2:
                     System.out.print("Masukkan nilai untuk di-delete: ");
                      try {
-                        int valueToDelete = sc.nextInt();
-                        rbt.delete(valueToDelete);
-                        System.out.println("Setelah delete " + valueToDelete + ":");
+                        value = sc.nextInt();
+                        rbt.delete(value);
                         rbt.printTree();
                     } catch (Exception e) {
                         System.out.println("Input tidak valid.");
@@ -392,7 +550,57 @@ public class RedBlackTree {
                     MenuHelper.pressEnter();
                     break;
                 case 4:
+                    rbt.preorder();
+                    MenuHelper.pressEnter();
+                    break;
+                case 5:
+                    rbt.postorder();
+                    MenuHelper.pressEnter();
+                    break;
+                case 6:
+                    rbt.levelOrder();
+                    MenuHelper.pressEnter();
+                    break;
+                case 7:
                     rbt.printTree();
+                    MenuHelper.pressEnter();
+                    break;
+                case 8:
+                    System.out.print("Masukkan nilai untuk dicari: ");
+                    try {
+                        value = sc.nextInt();
+                        rbt.search(value);
+                    } catch (Exception e) {
+                        System.out.println("Input tidak valid.");
+                        sc.next();
+                    }
+                    MenuHelper.pressEnter();
+                    break;
+                case 9:
+                    System.out.print("Masukkan nilai untuk dicek warnanya: ");
+                    try {
+                        value = sc.nextInt();
+                        rbt.printNodeColor(value);
+                    } catch (Exception e) {
+                        System.out.println("Input tidak valid.");
+                        sc.next();
+                    }
+                    MenuHelper.pressEnter();
+                    break;
+                case 10:
+                    System.out.println("Ketinggian Pohon (Tree Height): " + rbt.getHeight());
+                    MenuHelper.pressEnter();
+                    break;
+                case 11:
+                    System.out.println("Ketinggian Hitam (Black Height): " + rbt.getBlackHeight());
+                    MenuHelper.pressEnter();
+                    break;
+                case 12:
+                    rbt.getMinimum();
+                    MenuHelper.pressEnter();
+                    break;
+                case 13:
+                    rbt.getMaximum();
                     MenuHelper.pressEnter();
                     break;
                 case 0:
