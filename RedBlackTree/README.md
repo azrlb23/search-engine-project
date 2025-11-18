@@ -1,5 +1,3 @@
-# search-engine-project
-Tempat latihan strukdat.
 # 🌳 Implementasi Red Black Tree (Java)
 
 Ini adalah implementasi dari struktur data **Red Black Tree (RBT)** menggunakan Java. Program ini ditulis untuk tujuan edukasi, guna mendemonstrasikan konsep-konsep inti dari *Binary Search Tree* (BST) yang dapat menyeimbangkan dirinya sendiri (*self-balancing*).
