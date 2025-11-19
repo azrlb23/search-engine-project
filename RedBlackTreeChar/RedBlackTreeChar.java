@@ -1,9 +1,9 @@
 package RedBlackTreeChar;
 
 import java.io.IOException;
-import java.util.Scanner;
-import java.util.Queue;
 import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
 
 class MenuHelper {
     public static void pressEnter() {
@@ -169,11 +169,17 @@ public class RedBlackTreeChar {
         root.color = BLACK;
     }
 
-    private int getHeight(Node node) {
-        if (node == TNULL) return 0;
-        return 1 + Math.max(getHeight(node.left), getHeight(node.right));
+    public int getHeight() {
+        return getHeightHelper(this.root);
     }
 
+    private int getHeightHelper(Node node) {
+        if (node == TNULL) {
+            return -1;
+        }
+        return 1 + Math.max(getHeightHelper(node.left), getHeightHelper(node.right));
+    }
+    
     private void printSpaces(int count) {
         for (int i = 0; i < count; i++) {
             System.out.print(" ");
@@ -188,15 +194,16 @@ public class RedBlackTreeChar {
 
         Queue<Node> queue = new LinkedList<>();
         queue.add(root);
-        int height = getHeight(root);
-        int level = 0;
 
+        int originalHeight = getHeight();
+        int visualHeight = originalHeight + 1; 
+        int level = 0;
         final int NODE_WIDTH = 10; 
 
-        while (!queue.isEmpty() && level < height) {
+        while (!queue.isEmpty() && level < visualHeight) {
             int levelSize = queue.size();
-            int spaces = (int) Math.pow(2, height - level - 1) - 1;
-            int between = (int) Math.pow(2, height - level) - 1;
+            int spaces = (int) Math.pow(2, visualHeight - level - 1) - 1;
+            int between = (int) Math.pow(2, visualHeight - level) - 1;
 
             printSpaces(spaces * NODE_WIDTH);
 
@@ -206,12 +213,13 @@ public class RedBlackTreeChar {
                 if (current != TNULL) {
                     String colorStr = (current.color == RED) ? "MERAH" : "HITAM";
                     String output = String.format("%s(%s)", current.key, colorStr);
+                    
                     System.out.printf("%-" + NODE_WIDTH + "s", output);
 
                     queue.add(current.left);
                     queue.add(current.right);
                 } else {
-                    printSpaces(NODE_WIDTH);
+                    printSpaces(NODE_WIDTH); 
                     queue.add(TNULL);
                     queue.add(TNULL);
                 }
@@ -266,20 +274,46 @@ public class RedBlackTreeChar {
             System.out.print(node.key + " ");
         }
     }
-    
+
     public static void main(String[] args) {
         RedBlackTreeChar rbt = new RedBlackTreeChar();
         Scanner sc = new Scanner(System.in);
         
-        char[] dataStatis = { 'A', 'Z', 'R', '1', 'E', 'L' };
+        System.out.println("\n--- PILIH SUMBER DATA ---");
+        System.out.println("1. Gunakan Data Statis (thelazydog)");
+        System.out.println("2. Input Data Manual");
+        System.out.print("Pilihan: ");
         
-        System.out.println("--- Memasukkan Data Statis ---");
-        for (char c : dataStatis) {
-            System.out.println("Memasukkan: " + c);
-            rbt.insert(c);
+        int dataSource = 0;
+        try {
+            dataSource = sc.nextInt();
+        } catch (Exception e) {
+            System.out.println("Input tidak valid.");
+            sc.next();
+        }
+
+        if (dataSource == 1) {
+            String dataStatis = "thelazydog";
+            System.out.println("\n--- Memasukkan Data Statis ---");
+            for (int i = 0; i < dataStatis.length(); i++) {
+                char c = dataStatis.charAt(i);
+                System.out.println("Memasukkan: " + c);
+                rbt.insert(c);
+            }
+        } else if (dataSource == 2) {
+            System.out.print("\nMasukkan kata (contoh: PROGRAMMING): ");
+            String input = sc.next();
+            System.out.println("\n--- Memasukkan Data Input ---");
+            for (int i = 0; i < input.length(); i++) {
+                char c = input.charAt(i);
+                System.out.println("Memasukkan: " + c);
+                rbt.insert(c);
+            }
+        } else {
+            System.out.println("Pilihan tidak valid. Memulai dengan pohon kosong.");
         }
         
-        System.out.println("\n--- Pohon Awal Setelah Data Statis Dimasukkan ---");
+        System.out.println("\n--- Pohon Awal ---");
         rbt.printTree();
         
         MenuHelper.pressEnter(); 

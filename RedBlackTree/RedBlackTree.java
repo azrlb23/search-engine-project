@@ -1,11 +1,9 @@
 package RedBlackTree;
 
 import java.io.IOException;
-import java.util.LinkedList; // Diperlukan untuk Level-Order
-import java.util.Queue;       // Diperlukan untuk Level-Order
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Scanner;
-
-import RedBlackTreeChar.MenuHelper;
 
 class MenuHelper {
     public static void pressEnter() {
@@ -28,11 +26,11 @@ public class RedBlackTree {
         Node parent;
         Node left;
         Node right;
-        int color; // 0 untuk Merah, 1 untuk Hitam
+        int color;
 
         Node(int key) {
             this.key = key;
-            this.color = RED; // Node baru selalu merah
+            this.color = RED;
             this.left = TNULL;
             this.right = TNULL;
             this.parent = null;
@@ -43,21 +41,20 @@ public class RedBlackTree {
     private final Node TNULL;
 
     public RedBlackTree() {
-        TNULL = new Node(0); // Nilai key tidak penting
+        TNULL = new Node(0);
         TNULL.color = BLACK;
         TNULL.left = null;
         TNULL.right = null;
         root = TNULL;
     }
 
-    // --- ROTASI ---
     private void leftRotate(Node x) {
-        Node y = x.right;       // 1. Tentukan y
-        x.right = y.left;     // 2. Pindahkan subtree kiri y ke subtree kanan x
+        Node y = x.right;
+        x.right = y.left;
         if (y.left != TNULL) {
             y.left.parent = x;
         }
-        y.parent = x.parent;  // 3. Hubungkan parent x ke y
+        y.parent = x.parent;
         if (x.parent == null) {
             this.root = y;
         } else if (x == x.parent.left) {
@@ -65,17 +62,17 @@ public class RedBlackTree {
         } else {
             x.parent.right = y;
         }
-        y.left = x;           // 4. Jadikan x sebagai anak kiri y
+        y.left = x;
         x.parent = y;
     }
 
     private void rightRotate(Node x) {
-        Node y = x.left;        // 1. Tentukan y
-        x.left = y.right;     // 2. Pindahkan subtree kanan y ke subtree kiri x
+        Node y = x.left;
+        x.left = y.right;
         if (y.right != TNULL) {
             y.right.parent = x;
         }
-        y.parent = x.parent;  // 3. Hubungkan parent x ke y
+        y.parent = x.parent;
         if (x.parent == null) {
             this.root = y;
         } else if (x == x.parent.right) {
@@ -83,11 +80,10 @@ public class RedBlackTree {
         } else {
             x.parent.left = y;
         }
-        y.right = x;          // 4. Jadikan x sebagai anak kanan y
+        y.right = x;
         x.parent = y;
     }
 
-    // --- INSERTION ---
     public void insert(int key) {
         Node node = new Node(key);
         node.parent = null;
@@ -104,7 +100,6 @@ public class RedBlackTree {
             } else if (node.key > x.key) {
                 x = x.right;
             } else {
-                // Mencegah duplikat
                 System.out.println("Nilai " + key + " sudah ada. Duplikat tidak diizinkan.");
                 return;
             }
@@ -134,36 +129,34 @@ public class RedBlackTree {
     private void insertFix(Node k) {
         Node u;
         while (k.parent.color == RED) {
-            if (k.parent == k.parent.parent.right) { // Parent adalah anak KANAN
-                u = k.parent.parent.left; // Paman adalah anak KIRI
-                if (u.color == RED) { // Kasus 1: Paman MERAH
-                    u.color = BLACK;
-                    k.parent.color = BLACK;
-                    k.parent.parent.color = RED;
-                    k = k.parent.parent;
-                } else { // Paman HITAM
-                    if (k == k.parent.left) { // Kasus 2: Paman HITAM, k adalah anak KIRI (segitiga)
-                        k = k.parent;
-                        rightRotate(k);
-                    }
-                    // Kasus 3: Paman HITAM, k adalah anak KANAN (garis lurus)
-                    k.parent.color = BLACK;
-                    k.parent.parent.color = RED;
-                    leftRotate(k.parent.parent);
-                }
-            } else { // Parent adalah anak KIRI (simetris)
-                u = k.parent.parent.right; // Paman adalah anak KANAN
-                if (u.color == RED) { // Kasus 1
+            if (k.parent == k.parent.parent.right) {
+                u = k.parent.parent.left;
+                if (u.color == RED) {
                     u.color = BLACK;
                     k.parent.color = BLACK;
                     k.parent.parent.color = RED;
                     k = k.parent.parent;
                 } else {
-                    if (k == k.parent.right) { // Kasus 2
+                    if (k == k.parent.left) {
+                        k = k.parent;
+                        rightRotate(k);
+                    }
+                    k.parent.color = BLACK;
+                    k.parent.parent.color = RED;
+                    leftRotate(k.parent.parent);
+                }
+            } else {
+                u = k.parent.parent.right;
+                if (u.color == RED) {
+                    u.color = BLACK;
+                    k.parent.color = BLACK;
+                    k.parent.parent.color = RED;
+                    k = k.parent.parent;
+                } else {
+                    if (k == k.parent.right) {
                         k = k.parent;
                         leftRotate(k);
                     }
-                    // Kasus 3
                     k.parent.color = BLACK;
                     k.parent.parent.color = RED;
                     rightRotate(k.parent.parent);
@@ -173,10 +166,9 @@ public class RedBlackTree {
                 break;
             }
         }
-        root.color = BLACK; // Properti 2: Root selalu HITAM
+        root.color = BLACK;
     }
 
-    // --- DELETION ---
     private void rbTransplant(Node u, Node v) {
         if (u.parent == null) {
             root = v;
@@ -231,54 +223,52 @@ public class RedBlackTree {
     }
 
     private void deleteFix(Node x) {
-        Node s; // s untuk Sibling (saudara)
+        Node s;
         while (x != root && x.color == BLACK) {
-            if (x == x.parent.left) { // x adalah anak KIRI
-                s = x.parent.right; // Saudara adalah anak KANAN
-                if (s.color == RED) { // Kasus 1: Saudara MERAH
+            if (x == x.parent.left) {
+                s = x.parent.right;
+                if (s.color == RED) {
                     s.color = BLACK;
                     x.parent.color = RED;
                     leftRotate(x.parent);
                     s = x.parent.right;
                 }
 
-                if (s.left.color == BLACK && s.right.color == BLACK) { // Kasus 2: Saudara HITAM, kedua anaknya HITAM
+                if (s.left.color == BLACK && s.right.color == BLACK) {
                     s.color = RED;
                     x = x.parent;
                 } else {
-                    if (s.right.color == BLACK) { // Kasus 3: Saudara HITAM, anak kiri MERAH, anak kanan HITAM
+                    if (s.right.color == BLACK) {
                         s.left.color = BLACK;
                         s.color = RED;
                         rightRotate(s);
                         s = x.parent.right;
                     }
-                    // Kasus 4: Saudara HITAM, anak kanan MERAH
                     s.color = x.parent.color;
                     x.parent.color = BLACK;
                     s.right.color = BLACK;
                     leftRotate(x.parent);
                     x = root;
                 }
-            } else { // x adalah anak KANAN (simetris)
-                s = x.parent.left; // Saudara adalah anak KIRI
-                if (s.color == RED) { // Kasus 1
+            } else {
+                s = x.parent.left;
+                if (s.color == RED) {
                     s.color = BLACK;
                     x.parent.color = RED;
                     rightRotate(x.parent);
                     s = x.parent.left;
                 }
 
-                if (s.right.color == BLACK && s.left.color == BLACK) { // Kasus 2
+                if (s.right.color == BLACK && s.left.color == BLACK) {
                     s.color = RED;
                     x = x.parent;
                 } else {
-                    if (s.left.color == BLACK) { // Kasus 3
+                    if (s.left.color == BLACK) {
                         s.right.color = BLACK;
                         s.color = RED;
                         leftRotate(s);
                         s = x.parent.left;
                     }
-                    // Kasus 4
                     s.color = x.parent.color;
                     x.parent.color = BLACK;
                     s.left.color = BLACK;
@@ -289,8 +279,6 @@ public class RedBlackTree {
         }
         x.color = BLACK;
     }
-
-    // --- FUNGSI HELPER & PENCARIAN ---
     
     private Node minimum(Node node) {
         while (node.left != TNULL) {
@@ -299,7 +287,6 @@ public class RedBlackTree {
         return node;
     }
 
-    // ** BARU: Fungsi untuk mencari nilai Maksimum **
     private Node maximum(Node node) {
         while (node.right != TNULL) {
             node = node.right;
@@ -319,10 +306,9 @@ public class RedBlackTree {
                 node = node.right;
             }
         }
-        return TNULL; // Mengembalikan TNULL jika tidak ditemukan
+        return TNULL;
     }
 
-    // ** BARU: Fungsi Search untuk menu **
     public void search(int key) {
         Node node = findNode(key);
         if (node != TNULL) {
@@ -332,7 +318,6 @@ public class RedBlackTree {
         }
     }
 
-    // ** BARU: Fungsi Get Node Color untuk menu **
     public void printNodeColor(int key) {
         Node node = findNode(key);
         if (node != TNULL) {
@@ -343,22 +328,18 @@ public class RedBlackTree {
         }
     }
 
-    // ** BARU: Fungsi Get Tree Height untuk menu **
     public int getHeight() {
         return getHeightHelper(this.root);
     }
 
     private int getHeightHelper(Node node) {
         if (node == TNULL) {
-            return -1; // Ketinggian pohon kosong adalah -1
+            return -1;
         }
         return 1 + Math.max(getHeightHelper(node.left), getHeightHelper(node.right));
     }
 
-    // ** BARU: Fungsi Get Black Height untuk menu **
     public int getBlackHeight() {
-        // Cukup hitung node hitam di satu sisi (misal kiri)
-        // karena Properti 5 menjamin semuanya sama.
         Node current = this.root;
         int bh = 0;
         while (current != TNULL) {
@@ -367,10 +348,9 @@ public class RedBlackTree {
             }
             current = current.left;
         }
-        return bh; // Tidak perlu +1 karena TNULL tidak dihitung di loop
+        return bh;
     }
 
-    // ** BARU: Fungsi Get Minimum untuk menu **
     public void getMinimum() {
         if (root == TNULL) {
             System.out.println("Pohon kosong.");
@@ -379,7 +359,6 @@ public class RedBlackTree {
         System.out.println("Nilai Minimum: " + minimum(this.root).key);
     }
 
-    // ** BARU: Fungsi Get Maximum untuk menu **
     public void getMaximum() {
         if (root == TNULL) {
             System.out.println("Pohon kosong.");
@@ -387,9 +366,6 @@ public class RedBlackTree {
         }
         System.out.println("Nilai Maksimum: " + maximum(this.root).key);
     }
-
-
-    // --- FUNGSI TRAVERSAL & PRINTING ---
 
     public void inorder() {
         System.out.print("Inorder (Kiri, Root, Kanan): ");
@@ -405,7 +381,6 @@ public class RedBlackTree {
         }
     }
 
-    // ** BARU: Fungsi Preorder Traversal **
     public void preorder() {
         System.out.print("Preorder (Root, Kiri, Kanan): ");
         preorderHelper(this.root);
@@ -420,7 +395,6 @@ public class RedBlackTree {
         }
     }
 
-    // ** BARU: Fungsi Postorder Traversal **
     public void postorder() {
         System.out.print("Postorder (Kiri, Kanan, Root): ");
         postorderHelper(this.root);
@@ -435,7 +409,6 @@ public class RedBlackTree {
         }
     }
     
-    // ** BARU: Fungsi Level-Order Traversal **
     public void levelOrder() {
         if (root == TNULL) {
             System.out.println("Pohon kosong.");
@@ -458,31 +431,61 @@ public class RedBlackTree {
         System.out.println();
     }
     
-    public void printTree() {
-        System.out.println("Struktur Pohon (Key (Warna)):");
-        printHelper(this.root, "", true);
+    private int getHeightForBstPrint(Node node) {
+        if (node == TNULL) return 0;
+        return 1 + Math.max(getHeightForBstPrint(node.left), getHeightForBstPrint(node.right));
     }
-    
-    private void printHelper(Node root, String indent, boolean last) {
-        if (root != TNULL) {
-            System.out.print(indent);
-            if (last) {
-                System.out.print("R----");
-                indent += "   ";
-            } else {
-                System.out.print("L----");
-                indent += "|  ";
-            }
-            String color = root.color == RED ? "MERAH" : "HITAM";
-            System.out.println(root.key + " (" + color + ")");
-            
-            printHelper(root.left, indent, false);
-            printHelper(root.right, indent, true);
+
+    private void printSpaces(int count) {
+        for (int i = 0; i < count; i++) {
+            System.out.print(" ");
         }
     }
 
+    public void printTree() {
+        if (root == TNULL) {
+            System.out.println("Pohon kosong.");
+            return;
+        }
 
-    // --- MAIN METHOD (DIPERBARUI) ---
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(root);
+        int height = getHeightForBstPrint(root);
+        int level = 0;
+        final int NODE_WIDTH = 12; 
+
+        while (!queue.isEmpty() && level < height) {
+            int levelSize = queue.size();
+            int spaces = (int) Math.pow(2, height - level - 1) - 1;
+            int between = (int) Math.pow(2, height - level) - 1;
+
+            printSpaces(spaces * NODE_WIDTH);
+
+            for (int i = 0; i < levelSize; i++) {
+                Node current = queue.poll();
+
+                if (current != TNULL) {
+                    String color = (current.color == RED) ? "MERAH" : "HITAM";
+                    String output = String.format("%d(%s)", current.key, color);
+                    System.out.printf("%-" + NODE_WIDTH + "s", output);
+                    
+                    queue.add(current.left);
+                    queue.add(current.right);
+                } else {
+                    printSpaces(NODE_WIDTH);
+                    queue.add(TNULL);
+                    queue.add(TNULL);
+                }
+
+                if (i < levelSize - 1) {
+                    printSpaces(between * NODE_WIDTH);
+                }
+            }
+            System.out.println("\n");
+            level++;
+        }
+    }
+
     public static void main(String[] args) {
         RedBlackTree rbt = new RedBlackTree();
         Scanner sc = new Scanner(System.in);
@@ -514,11 +517,11 @@ public class RedBlackTree {
                 option = sc.nextInt();
             } catch (Exception e) {
                 System.out.println("Input tidak valid, masukkan angka.");
-                sc.next(); // Bersihkan buffer scanner
+                sc.next();
                 continue;
             }
 
-            int value; // Dipindahkan ke luar switch
+            int value;
             
             switch (option) {
                 case 1:
