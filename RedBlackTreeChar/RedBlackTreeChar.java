@@ -241,8 +241,9 @@ public class RedBlackTreeChar {
 
     private void inorderHelper(Node node) {
         if (node != TNULL) {
+            String colorStr = (node.color == RED) ? "MERAH" : "HITAM";
             inorderHelper(node.left);
-            System.out.print(node.key + " ");
+            System.out.print(node.key + "|" + colorStr + "|" + " ");
             inorderHelper(node.right);
         }
     }
@@ -255,7 +256,8 @@ public class RedBlackTreeChar {
 
     private void preorderHelper(Node node) {
         if (node != TNULL) {
-            System.out.print(node.key + " ");
+            String colorStr = (node.color == RED) ? "MERAH" : "HITAM";
+            System.out.print(node.key + "|" + colorStr + "|" + " ");
             preorderHelper(node.left);
             preorderHelper(node.right);
         }
@@ -269,9 +271,10 @@ public class RedBlackTreeChar {
 
     private void postorderHelper(Node node) {
         if (node != TNULL) {
+            String colorStr = (node.color == RED) ? "MERAH" : "HITAM";
             postorderHelper(node.left);
             postorderHelper(node.right);
-            System.out.print(node.key + " ");
+            System.out.print(node.key + "|" + colorStr + "|" + " ");
         }
     }
 
@@ -325,6 +328,7 @@ public class RedBlackTreeChar {
             System.out.println("2. Print Preorder");
             System.out.println("3. Print Postorder");
             System.out.println("4. Print Struktur Pohon (Visual)");
+            System.out.println("5. Insert Node (Tambah Karakter)"); // MENU INSERT DITAMBAHKAN
             System.out.println("0. Exit");
             System.out.print("Pilihan Anda: ");
 
@@ -351,6 +355,17 @@ public class RedBlackTreeChar {
                     break;
                 case 4:
                     rbt.printTree();
+                    MenuHelper.pressEnter();
+                    break;
+                case 5: // LOGIKA INSERTION DITAMBAHKAN
+                    System.out.print("Masukkan karakter untuk insert: ");
+                    String inputStr = sc.next();
+                    if (inputStr.length() > 0) {
+                        char charToInsert = inputStr.charAt(0);
+                        rbt.insert(charToInsert);
+                        System.out.println("Berhasil insert: " + charToInsert);
+                        rbt.printTree();
+                    }
                     MenuHelper.pressEnter();
                     break;
                 case 0:
